@@ -56,7 +56,7 @@ class Ui_MainWindow(object):
             self.retranslateUi(MainWindow)
             self.pushButton.clicked.connect(self.recuperer)
             self.pushButton_2.clicked.connect(self.grise)
-            self.pushButton_3.clicked.connect(self.egalisation)
+            self.pushButton_3.clicked.connect(self.egalisationHisto)
             QtCore.QMetaObject.connectSlotsByName(MainWindow)
             
             self.filename = None #retenir adresse de l'image
@@ -91,7 +91,7 @@ class Ui_MainWindow(object):
         
        
             
-        def egalisation(self):
+        def egalisationHisto(self):
             
             self.image = self.griser()
             equ = cv2.equalizeHist(self.image)
