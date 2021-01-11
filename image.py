@@ -10,6 +10,8 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QImage
 import cv2 
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 class Ui_MainWindow(object):
         def setupUi(self, MainWindow):
@@ -56,7 +58,7 @@ class Ui_MainWindow(object):
             self.retranslateUi(MainWindow)
             self.pushButton.clicked.connect(self.recuperer)
             self.pushButton_2.clicked.connect(self.grise)
-            self.pushButton_3.clicked.connect(self.egalisationHisto)
+            self.pushButton_3.clicked.connect(self.egalisationHistogrammeCouleur)
             QtCore.QMetaObject.connectSlotsByName(MainWindow)
             
             self.filename = None #retenir adresse de l'image
@@ -89,15 +91,49 @@ class Ui_MainWindow(object):
         def grise(self):
             self.affichage(self.griser())
         
-       
-            
-        def egalisationHisto(self):
+           
+                
+                    
+        def egalisationHistogramme(self):
             
             self.image = self.griser()
             equ = cv2.equalizeHist(self.image)
             self.affichage(equ)
              
-
+        def egalisationHistogrammeCouleur(self): 
+            def egal(y):
+                y = y.astype(np.uint8)       
+                histo = np.zeros(256, int)      
+                for i in range(0,image.shape[0]):       
+                    for j in range(0,image.shape[1]):   
+                        histo[y[i,j]] = histo[y[i,j]] + 1
+                plt.plot(histo)
+                # calcul l'histogramme cumulé hc
+                hc = np.zeros(256, int)        
+                hc[0] = histo[0]
+                for i in range(1,256):
+                    hc[i] = histo[i] + hc[i-1]
+                
+                #egalisation histogramme
+                nbpixels = y.size
+                hc = hc / nbpixels * 255
+                plt.plot(hc)
+                for i in range(0,y.shape[0]):     
+                    for j in range(0,y.shape[1]):   
+                        y[i,j] = hc[y[i,j]]
+                return y      
+            
+            image = cv2.imread(self.filename)    
+            #on divise l'image en 3 bandes R V B
+            b,v,r = cv2.split(image)
+            #on egalise l'histogramme de chaque bande
+            imageR = egal(r)
+            imageV = egal(v)
+            imageB = egal(b)
+            #on fusionne les 3 bandes pour avoir une seule image couleur
+            y = cv2.merge((imageB,imageV,imageR))
+            self.affichage(y)    
+            
         def retranslateUi(self, MainWindow):
             _translate = QtCore.QCoreApplication.translate
             MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
